@@ -19,7 +19,7 @@ public class MainFrame extends JFrame {
     private final JLabel infoLabel;
 
     private MainFrame() {
-        super("Monte Carlo Method");
+        super("Monte Carlo Method + recrystallization");
         setLayout(new BorderLayout());
 
         JPanel northPanel = new JPanel(new FlowLayout());
