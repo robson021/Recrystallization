@@ -12,7 +12,9 @@ public class Cell {
     private static final Random random = new Random();
     private static final Conditions conditions = Conditions.getConditions();
 
-    private boolean recrystallized;
+    private static final double CRITICAL_RO = 46842668.248;
+
+    private boolean recrystallized = false;
     private boolean onEdge;
     private double ro;
 
@@ -28,6 +30,7 @@ public class Cell {
         cordY = j * SIZE;
         this.id = conditions.getRandomId();
     }
+
 
     /*public void reset() {
         color = Color.WHITE;
@@ -134,6 +137,7 @@ public class Cell {
 
 
     public void checkIfOnEdge() {
+        this.modified = false;
         Cell otherCell;
         for (int j, i = x - 1; i < x + 2; i++) {
             for (j = y - 1; j < y + 2; j++) {
@@ -159,5 +163,37 @@ public class Cell {
             double r = random.nextInt(31);
             this.ro += r * avgRo / 100;
         }
+    }
+
+    public void tryRec() {
+        if (this.recrystallized || !this.onEdge) return;
+
+        Cell otherCell;
+        for (int j, i = x - 1; i < x + 2; i++) {
+            for (j = y - 1; j < y + 2; j++) {
+                if (i == x && j == y) continue;
+                try {
+                    otherCell = cells[i][j];
+                    if (otherCell.recrystallized && !otherCell.modified) {
+                        this.setId(otherCell.getId());
+                        this.setColor(otherCell.getColor());
+                        this.recrystallized = true;
+                        this.modified = true;
+                        this.ro = .0;
+                        return;
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+
+        if (this.ro > CRITICAL_RO) {
+            this.recrystallized = true;
+            this.ro = .0;
+            this.modified = true;
+            this.setId(conditions.getRandomId());
+            setColor(conditions.getColorById(this.id));
+        }
+
     }
 }

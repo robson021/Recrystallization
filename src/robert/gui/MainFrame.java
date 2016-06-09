@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
         startButton.addActionListener(new StartButtonAction());
         stopButton = new JButton("Stop");
         stopButton.addActionListener(e -> {
+            board.setRec(false);
             board.stopThread();
             try {
                 boardThread.join();
@@ -100,11 +101,9 @@ public class MainFrame extends JFrame {
     private class RecrystallizationAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            stopButton.doClick();
-            startButton.setEnabled(true);
+            if (board.isRunning() || board.isRec()) return;
             new Thread(() -> {
                 board.recrystallize();
-                startButton.setEnabled(false);
             }).start();
             System.out.println("Recrystallization started.");
         }

@@ -24,6 +24,7 @@ public class Board extends JPanel implements Runnable {
     private final java.util.List<Cell> cellList = new ArrayList<>();
 
     private boolean running = false;
+    private boolean rec = false;
 
     public Board() {
         setBackground(Color.WHITE);
@@ -100,19 +101,42 @@ public class Board extends JPanel implements Runnable {
         System.out.println("Board thread finished");
     }
 
+    public boolean isRec() {
+        return rec;
+    }
+
+    public void setRec(boolean rec) {
+        this.rec = rec;
+    }
+
     public void recrystallize() {
         this.initRec();
-        double avgRo, ro;
-        while (true) {
-            ro = (A / B) + (1 - A / B) * Math.exp(-B * t);
+        int i = 0;
+        double avgRo, ro, prevRo = .0;
+        rec = true;
+        while (rec) {
+            i++;
+            ro = (A / B) + (1 - A / B) * Math.exp(-B * t) - prevRo;
             avgRo = ro / (SIZE_X * SIZE_Y);
+            //System.out.println(ro + " " + avgRo);
             for (Cell c : cellList) {
                 c.checkIfOnEdge();
                 c.addRo(avgRo);
             }
+            Collections.shuffle(cellList, new Random(System.nanoTime()));
+            for (Cell c : cellList) {
+                c.tryRec();
+            }
+            prevRo = ro;
+            t += dt;
+            repaint();
+            try {
+                Thread.sleep(3);
+            } catch (InterruptedException e) {
+            }
         }
-        //MainFrame.getFrame().getStartButton().setEnabled(true);
-        //System.out.println("Recrystallization finished");
+        MainFrame.getFrame().getStartButton().setEnabled(true);
+        System.out.println("Recrystallization finished. " + i);
     }
 
     private void initRec() {
