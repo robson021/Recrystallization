@@ -1,6 +1,7 @@
 package robert.model;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -169,25 +170,28 @@ public class Cell {
         if (this.recrystallized || !this.onEdge) return;
 
         Cell otherCell;
+        java.util.List<Cell> cellList = new ArrayList<>();
         for (int j, i = x - 1; i < x + 2; i++) {
             for (j = y - 1; j < y + 2; j++) {
                 if (i == x && j == y) continue;
                 try {
                     otherCell = cells[i][j];
                     if (otherCell.recrystallized && !otherCell.modified) {
-                        this.setId(otherCell.getId());
-                        this.setColor(otherCell.getColor());
-                        this.recrystallized = true;
-                        this.modified = true;
-                        this.ro = .0;
-                        return;
+                        cellList.add(otherCell);
                     }
                 } catch (Exception e) {
                 }
             }
         }
 
-        if (this.ro > CRITICAL_RO) {
+        if (!cellList.isEmpty()) {
+            otherCell = cellList.get(random.nextInt(cellList.size()));
+            this.setId(otherCell.getId());
+            this.setColor(otherCell.getColor());
+            this.recrystallized = true;
+            this.modified = true;
+            this.ro = .0;
+        } else if (this.ro > CRITICAL_RO) {
             this.recrystallized = true;
             this.ro = .0;
             this.modified = true;
