@@ -11,10 +11,10 @@ import java.awt.event.ActionListener;
  * Created by robert on 03.06.16.
  */
 public class MainFrame extends JFrame {
-    private static JFrame self = null;
+    private static MainFrame self = null;
 
     private final Board board;
-    private final JButton startButton;
+    private final JButton startButton, stopButton, recButton;
     private Thread boardThread = null;
     private final JLabel infoLabel;
 
@@ -29,7 +29,7 @@ public class MainFrame extends JFrame {
 
         startButton = new JButton("Start");
         startButton.addActionListener(new StartButtonAction());
-        JButton stopButton = new JButton("Stop");
+        stopButton = new JButton("Stop");
         stopButton.addActionListener(e -> {
             board.stopThread();
             try {
@@ -59,6 +59,9 @@ public class MainFrame extends JFrame {
         southPanel.add(startButton);
         southPanel.add(stopButton);
         southPanel.add(clearButton);
+        recButton = new JButton("Recrystallize");
+        recButton.addActionListener(new RecrystallizationAction());
+        southPanel.add(recButton);
 
         // adding to the frame
         this.add(northPanel, BorderLayout.NORTH);
@@ -75,7 +78,7 @@ public class MainFrame extends JFrame {
         System.out.println("Main frame ready");
     }
 
-    public static JFrame getFrame() {
+    public static MainFrame getFrame() {
         if (self == null) {
             self = new MainFrame();
         }
@@ -92,5 +95,22 @@ public class MainFrame extends JFrame {
                 boardThread.start();
             }
         }
+    }
+
+    private class RecrystallizationAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            stopButton.doClick();
+            startButton.setEnabled(true);
+            new Thread(() -> {
+                board.recrystallize();
+                startButton.setEnabled(false);
+            }).start();
+            System.out.println("Recrystallization started.");
+        }
+    }
+
+    public JButton getStartButton() {
+        return startButton;
     }
 }

@@ -16,6 +16,11 @@ public class Board extends JPanel implements Runnable {
     private static final int SIZE_X = SIZE_Y * 2;
     private final Cell[][] cells = new Cell[SIZE_X][SIZE_Y];
 
+    private static final double A = 86710969050178.5;
+    private static final double B = 9.41268203527779;
+    private double t = 0.001;
+    private static final double dt = 0.001;
+
     private final java.util.List<Cell> cellList = new ArrayList<>();
 
     private boolean running = false;
@@ -93,6 +98,27 @@ public class Board extends JPanel implements Runnable {
             System.out.println("Cycle " + (++i) + " done");
         }
         System.out.println("Board thread finished");
+    }
+
+    public void recrystallize() {
+        this.initRec();
+        double avgRo, ro;
+        while (true) {
+            ro = (A / B) + (1 - A / B) * Math.exp(-B * t);
+            avgRo = ro / (SIZE_X * SIZE_Y);
+            for (Cell c : cellList) {
+                c.checkIfOnEdge();
+                c.addRo(avgRo);
+            }
+        }
+        //MainFrame.getFrame().getStartButton().setEnabled(true);
+        //System.out.println("Recrystallization finished");
+    }
+
+    private void initRec() {
+        for (Cell c : cellList) {
+            c.reset();
+        }
     }
 
     private void resetModifyFlag() {

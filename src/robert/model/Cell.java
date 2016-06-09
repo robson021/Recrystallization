@@ -12,6 +12,9 @@ public class Cell {
     private static final Random random = new Random();
     private static final Conditions conditions = Conditions.getConditions();
 
+    private boolean recrystallized;
+    private boolean onEdge;
+    private double ro;
 
     private int id;
     private final int x, y, cordX, cordY;
@@ -30,6 +33,12 @@ public class Cell {
         color = Color.WHITE;
     }*/
 
+    public void reset() {
+        modified = false;
+        recrystallized = false;
+        onEdge = false;
+        ro = .0;
+    }
     public int getId() {
         return id;
     }
@@ -124,4 +133,31 @@ public class Cell {
     }
 
 
+    public void checkIfOnEdge() {
+        Cell otherCell;
+        for (int j, i = x - 1; i < x + 2; i++) {
+            for (j = y - 1; j < y + 2; j++) {
+                if (i == x && j == y) continue;
+                try {
+                    otherCell = cells[i][j];
+                    if (otherCell.id != this.id) {
+                        onEdge = true;
+                        return;
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+        onEdge = false;
+    }
+
+    public void addRo(double avgRo) {
+        if (onEdge) {
+            int r = random.nextInt(61);
+            this.ro += (120.0 + r) * avgRo / 100;
+        } else {
+            double r = random.nextInt(31);
+            this.ro += r * avgRo / 100;
+        }
+    }
 }
